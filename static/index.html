@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TuneBox</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#14171C">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%235DCAA5'/%3E%3Cstop offset='1' stop-color='%23534AB7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='15' fill='url(%23g)'/%3E%3Cg fill='%23fff' transform='translate(32 32) scale(1.15) translate(-32 -32) translate(3.5 1.5)'%3E%3Cpath d='M22 17 45 11v9L22 26z'/%3E%3Crect x='22' y='20' width='5' height='25'/%3E%3Crect x='40' y='15' width='5' height='24'/%3E%3Cellipse cx='19' cy='45' rx='7' ry='5.2' transform='rotate(-20 19 45)'/%3E%3Cellipse cx='37' cy='39' rx='7' ry='5.2' transform='rotate(-20 37 39)'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root{--bg:#14171C;--card:#1C2027;--hover:#242932;--line:#2C323C;--ink:#E8EAEE;--mute:#9AA2AF;--acc:#5DCAA5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.45}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0;text-align:left}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+svg{width:20px;height:20px;fill:currentColor;display:block;flex-shrink:0}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+.side{border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.logo{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:600;padding:0 10px 16px;font-family:inherit;color:inherit}
+.logo:hover{opacity:.85}
+.logo:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:8px}
+.logo svg{color:var(--acc);width:24px;height:24px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:8px;color:var(--mute);font-size:15px}
+.nav button:hover{background:var(--card);color:var(--ink)}
+.nav button.on{background:var(--card);color:var(--ink);font-weight:600}
+.nav hr{border:0;border-top:1px solid var(--line);margin:10px 4px;width:calc(100% - 8px)}
+.nav .pl{font-size:14px;padding-left:10px}
+main{padding:20px 28px 130px;min-width:0}
+.bar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:4px 6px 4px 16px;max-width:440px}
+.bar:focus-within{border-color:var(--acc)}
+.bar input{flex:1;background:none;border:0;outline:0;padding:8px 0;font-size:15px;min-width:0}
+.bar input::placeholder{color:var(--mute)}
+.bar button{width:34px;height:34px;border-radius:50%;background:var(--acc);color:#0b1a14;display:grid;place-items:center}
+h1{font-size:28px;font-weight:600;margin:22px 0 14px}
+h2{font-size:19px;font-weight:600;margin:26px 0 12px}
+.quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.qt{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:8px;overflow:hidden;font-weight:600;transition:background .15s}
+.qt:hover{background:var(--hover)}
+.qt .sq{width:56px;height:56px;flex-shrink:0;display:grid;place-items:center;overflow:hidden}
+.sq img,.cv img{width:100%;height:100%;object-fit:cover;display:block}
+.pls{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.pc{background:var(--card);border-radius:12px;padding:10px;transition:background .15s}
+.pc:hover{background:var(--hover)}
+.cv{aspect-ratio:1;border-radius:8px;overflow:hidden;display:grid;place-items:center}
+.cv svg{width:34px;height:34px;opacity:.85}
+.t{font-weight:600;font-size:14px;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a{font-size:13px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.head{display:flex;align-items:center;gap:16px;margin:22px 0 6px;flex-wrap:wrap}
+.head h1{margin:0}
+.pall{background:var(--acc);color:#0b1a14;font-weight:600;padding:9px 18px;border-radius:20px;display:flex;align-items:center;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.song{position:relative;background:var(--card);border-radius:12px;padding:10px;transition:background .15s}
+.song:hover{background:var(--hover)}
+.song.on{outline:2px solid var(--acc)}
+.song .open{display:block;width:100%}
+.art{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--line)}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.pb{position:absolute;right:8px;bottom:8px;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#0b1a14;display:grid;place-items:center;opacity:0;transform:translateY(6px);transition:.15s}
+.song:hover .pb,.song.on .pb,.song:focus-within .pb{opacity:1;transform:none}
+.heart{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(20,23,28,.7);color:#fff;display:grid;place-items:center;opacity:0;transition:.15s}
+.song:hover .heart,.heart[aria-pressed=true],.heart:focus-visible{opacity:1}
+.heart[aria-pressed=true]{color:#E8837B}
+.heart svg{width:18px;height:18px}
+.morewrap{display:flex;justify-content:center;margin-top:22px}
+.more{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:10px 24px;font-weight:600;text-align:center}
+.more:hover{background:var(--hover);border-color:var(--acc)}
+.msg{color:var(--mute);padding:16px 0;grid-column:1/-1}
+.skel{height:230px;border-radius:12px;background:var(--card);animation:p 1.2s infinite alternate}
+@keyframes p{to{opacity:.5}}
+.credit{color:var(--mute);font-size:12px;margin-top:30px}
+.player{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.4fr 1fr;align-items:center;gap:16px;padding:10px 20px;z-index:5}
+.now{display:flex;align-items:center;gap:12px;min-width:0}
+.now img{width:52px;height:52px;border-radius:6px;object-fit:cover;background:var(--line);flex-shrink:0}
+.now .t{margin:0}
+.ctl{display:flex;flex-direction:column;align-items:center;gap:6px}
+.btns{display:flex;align-items:center;gap:18px}
+.btns button{color:var(--mute);width:32px;height:32px;display:grid;place-items:center;border-radius:50%}
+.btns button:hover{color:var(--ink)}
+.btns button.on{color:var(--acc)}
+.btns .play{background:var(--ink);color:#14171C;width:38px;height:38px}
+.btns .play:hover{color:#14171C;background:#fff}
+.seek{display:flex;align-items:center;gap:10px;width:100%;max-width:520px;font-size:12px;color:var(--mute)}
+.seek span{width:34px;text-align:center}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:4px;border-radius:2px;background:linear-gradient(to right,var(--acc) var(--p,0%),var(--line) var(--p,0%));outline-offset:6px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:var(--ink)}
+.vol{display:flex;align-items:center;gap:8px;justify-content:flex-end;color:var(--mute)}
+.vol input{flex:none;width:100px}
+dialog{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(380px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h2{margin:0 0 6px}
+dialog label{display:block;margin:10px 0;font-size:13px;color:var(--mute)}
+dialog input{display:block;width:100%;margin-top:4px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:15px;color:var(--ink)}
+.seg{display:flex;gap:6px;margin:10px 0}
+.seg button{flex:1;padding:8px;border-radius:8px;background:var(--bg);text-align:center;color:var(--mute)}
+.seg .on{color:var(--ink);box-shadow:inset 0 0 0 1px var(--acc)}
+.hint{font-size:13px;color:var(--mute);margin:6px 0}
+.rcode{font:700 28px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-align:center;background:var(--bg);border:1px dashed var(--acc);border-radius:10px;padding:14px 8px;margin:12px 0;user-select:all}
+dialog .chk{display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:14px;margin:14px 0}
+dialog .chk input{display:inline-block;width:auto;margin:3px 0 0;padding:0}
+.pall:disabled{filter:grayscale(.6)}
+.flink{display:block;color:var(--acc);font-size:13px;font-weight:600;padding:2px 0;margin:-2px 0 4px}
+.flink[hidden]{display:none}
+#rpCode{font-family:ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase}
+.err{color:#E8837B;font-size:13px;min-height:18px;margin:6px 0}
+.dact{display:flex;gap:10px;align-items:center;margin-top:8px}
+#pickList button{display:block;width:100%;padding:10px;border-radius:8px}
+#pickList button:hover{background:var(--hover)}
+.npl{display:flex;gap:8px;margin:12px 0}
+.npl input{margin:0}
+.npl .pall{flex-shrink:0;padding:8px 14px}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:20px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#toast.show{opacity:1}
+.acct{padding:0 10px 12px;font-size:13px;color:var(--mute)}
+.acct b{color:var(--ink)}
+.acct .lnk{color:var(--acc);padding:6px 0;font-weight:600}
+.add{position:absolute;top:16px;left:16px;width:32px;height:32px;border-radius:50%;background:rgba(20,23,28,.7);color:#fff;display:grid;place-items:center;opacity:0;transition:.15s}
+.song:hover .add,.add:focus-visible{opacity:1}
+.add svg{width:18px;height:18px}
+@media (hover:none){.heart,.add{opacity:1}}
+@media (max-width:820px){.prof h1{font-size:30px}.avatar.big{width:110px;height:110px;font-size:42px}}
+.topbar{display:flex;align-items:center;gap:12px}
+.topbar .bar{flex:1}
+.me{position:relative;flex-shrink:0;margin-left:auto}
+.avatar{width:40px;height:40px;border-radius:50%;background:#534AB7;color:#fff;display:grid;place-items:center;font-weight:700;overflow:hidden;border:2px solid var(--line);padding:0}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar.big{width:150px;height:150px;font-size:56px;cursor:pointer}
+.menu{position:absolute;right:0;top:48px;background:var(--card);border:1px solid var(--line);border-radius:12px;min-width:220px;padding:6px;z-index:15;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.menu[hidden]{display:none}
+.menu button{display:block;width:100%;padding:9px 12px;border-radius:8px}
+.menu button:hover{background:var(--hover)}
+.menu .who{padding:8px 12px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.menu .who b{display:block}
+.menu .who span{color:var(--mute);font-size:13px}
+.lgbtn{background:var(--acc);color:#0b1a14;font-weight:600;padding:9px 18px;border-radius:20px;white-space:nowrap}
+.prof{display:flex;gap:24px;align-items:flex-end;margin:22px 0 14px;flex-wrap:wrap}
+.prof .kicker{font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.prof h1{margin:4px 0;font-size:44px;line-height:1.1;word-break:break-word}
+.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.psec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:16px;max-width:520px}
+.psec h2{margin:0 0 10px}
+.psec form{display:flex;flex-direction:column;gap:10px}
+.psec input{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;font-size:15px;color:var(--ink)}
+#busy{position:fixed;top:0;left:0;width:100%;height:3px;z-index:100;pointer-events:none;opacity:0;transition:opacity .15s;background:linear-gradient(90deg,transparent,var(--acc),transparent) no-repeat;background-size:40% 100%;animation:busy 1s linear infinite}
+#busy.on{opacity:1}
+@keyframes busy{from{background-position:-40% 0}to{background-position:140% 0}}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:rot .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.pall:disabled,.more:disabled,.danger:disabled{opacity:.75;cursor:wait}
+.spin.big{width:34px;height:34px;border-width:3px;margin:0 0 12px;color:var(--acc)}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;color:var(--mute);font-size:14px}
+.danger{padding:10px 18px;border-radius:999px;font-weight:700;background:#E8837B;color:#1a1a1a}
+.danger:hover{filter:brightness(1.08)}
+.psec.dz{border-color:#E8837B55}
+.pwf{position:relative;display:block;margin-top:4px}
+.pwf input{margin-top:0;padding-right:46px}
+.eye{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border-radius:8px;color:var(--mute)}
+.eye:hover{color:var(--ink)}
+.eye svg{width:20px;height:20px}
+.pl-link{display:block;width:100%;padding:8px 10px;border-radius:8px}
+.pl-link:hover{background:var(--hover)}
+.artists{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x proximity}
+.ar{flex:0 0 144px;text-align:center;scroll-snap-align:start;padding:10px;border-radius:12px;transition:background .15s}
+.ar:hover{background:var(--card)}
+.ar .face{width:120px;height:120px;border-radius:50%;margin:0 auto 8px;overflow:hidden;display:grid;place-items:center;font-size:42px;font-weight:700}
+.ar .t,.ar .a{text-align:center;margin-top:0}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{position:static;height:auto;border:0;padding:14px 14px 0}
+  .logo{padding-bottom:10px}
+  .nav{flex-direction:row;overflow-x:auto;padding-bottom:4px;gap:6px}
+  .nav button{white-space:nowrap;background:var(--card);padding:7px 12px;gap:6px}
+  .nav button svg{display:none}
+  .nav hr{display:none}
+  main{padding:14px 14px 150px}
+  .quick{grid-template-columns:1fr}
+  .player{grid-template-columns:1fr;gap:6px;padding:8px 14px}
+  .vol{display:none}
+  .now img{width:40px;height:40px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .pls{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.dots{position:relative;flex-shrink:0}
+.dotbtn{width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--line);display:grid;place-items:center}
+.dotbtn:hover{background:var(--hover)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <button class="logo" id="logo" type="button" aria-label="TuneBox, go to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3v12.3A3.5 3.5 0 1 0 11 18.5V8h7V3H9z"/></svg>TuneBox</button>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <form class="bar" id="form" role="search">
+        <input id="q" type="search" placeholder="Search songs or artists" aria-label="Search songs or artists" autocomplete="off">
+        <button type="submit" aria-label="Search"><svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.5 10.9l4.8 4.8 1.4-1.4-4.8-4.8A6 6 0 0 0 10 4zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg></button>
+      </form>
+      <div class="me" id="me"></div>
+      <div class="dots"><button class="dotbtn" id="pDots" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z"/></svg></button>
+        <div class="menu" id="dotMenu" role="menu" hidden><button role="menuitem" id="miInstall" type="button">Install app</button><button role="menuitem" id="miA2hs" type="button">Add to Home Screen</button></div></div>
+    </div>
+    <div id="view"></div>
+    <p class="credit">Song previews and cover art from the iTunes Search API. Previews are 30 seconds long.</p>
+  </main>
+</div>
+
+<div class="player" aria-label="Music player">
+  <div class="now">
+    <img id="cover" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+    <div style="min-width:0"><div class="t" id="pt">Pick a song</div><div class="a" id="pa">to start listening</div></div>
+  </div>
+  <div class="ctl">
+    <div class="btns">
+      <button id="shuf" aria-label="Shuffle" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4V8h-2.6l-3 4 3 4H17v-3l4 4-4 4v-3h-3.6L9.5 14.2 6.6 18H3v-2h2.6l3-4-3-4H3V6h3.6l2.9 3.8L13.4 5H17V3z"/></svg></button>
+      <button id="prev" aria-label="Previous song"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6V5zm3.5 7L19 5v14l-9.5-7z"/></svg></button>
+      <button id="play" class="play" aria-label="Play"></button>
+      <button id="next" aria-label="Next song"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2V5zM5 5l9.5 7L5 19V5z"/></svg></button>
+      <button id="rep" aria-label="Repeat song" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+    </div>
+    <div class="seek"><span id="cur">0:00</span><input id="seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Seek"><span id="dur">0:30</span></div>
+  </div>
+  <div class="vol">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+    <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
+  </div>
+</div>
+
+<dialog id="auth" aria-labelledby="authT">
+  <h2 id="authT">Log in</h2>
+  <div class="seg"><button type="button" data-m="login" class="on">Log in</button><button type="button" data-m="signup">Sign up</button></div>
+  <p class="hint" id="authHint"></p>
+  <form id="authForm">
+    <label>Username<input id="au" autocomplete="username" maxlength="20" required></label>
+    <label>Password<span class="pwf"><input id="ap" type="password" autocomplete="current-password" maxlength="64" required><button type="button" class="eye" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 5C7 5 3 9.5 2 12c1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg></button></span></label>
+    <button type="button" class="flink" id="forgot">Forgot password?</button>
+    <p class="err" id="amsg" role="alert"></p>
+    <div class="dact"><button class="pall" id="asub" type="submit">Log in</button><button class="more" id="authX" type="button">Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="pick" aria-labelledby="pickT">
+  <h2 id="pickT">Add to playlist</h2>
+  <div id="pickList"></div>
+  <form class="npl" id="newpl"><input id="npn" placeholder="New playlist name" maxlength="50" aria-label="New playlist name"><button class="pall" type="submit">Create</button></form>
+  <button class="more" id="pickX" type="button">Close</button>
+</dialog>
+<dialog id="reset" aria-labelledby="resetT">
+  <h2 id="resetT">Reset your password</h2>
+  <p class="hint">Enter your username and the recovery code you saved when you signed up (like K7M2-9XQ4). No recovery code? Then a forgotten password can't be reset.</p>
+  <form id="resetForm">
+    <label>Username<input id="rpUser" autocomplete="username" maxlength="20" required></label>
+    <label>Recovery code<input id="rpCode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="100" placeholder="XXXX-XXXX" required></label>
+    <label>New password<span id="rp1w"></span></label>
+    <label>Confirm new password<span id="rp2w"></span></label>
+    <p class="err" id="rpMsg" role="alert"></p>
+    <div class="dact"><button class="pall" id="resetGo" type="submit">Reset password</button><button class="more" id="resetX" type="button">Cancel</button></div>
+  </form>
+</dialog>
+
+<dialog id="rec" aria-labelledby="recT">
+  <h2 id="recT">Save your recovery code</h2>
+  <p class="hint">If you forget your password, this code is the <b>only</b> way back into your account. We can't show it again. If you lose both your password and this code, the account is gone for good.</p>
+  <div class="rcode" id="recCode" aria-live="polite"></div>
+  <div class="row2"><button class="more" id="recCopy" type="button">Copy code</button><button class="more" id="recDl" type="button">Download .txt</button></div>
+  <p class="hint" id="recNote" role="status"></p>
+  <label class="chk"><input type="checkbox" id="recOk">I have saved this code somewhere safe</label>
+  <div class="dact"><button class="pall" id="recGo" type="button" disabled>Continue</button></div>
+</dialog>
+<dialog id="a2hs" aria-labelledby="a2hsT">
+  <h2 id="a2hsT">Install TuneBox</h2>
+  <p class="hint"><b>iPhone (Safari):</b> neeche Share button dabao, phir <b>Add to Home Screen</b>.</p>
+  <p class="hint"><b>Android (Chrome):</b> upar teen dots dabao, phir <b>Install app</b>.</p>
+  <div class="dact"><button class="pall" id="a2hsX" type="button">Samajh gaya</button></div>
+</dialog>
+<div id="busy" aria-hidden="true"></div>
+<div id="toast" role="status"></div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+const $ = id => document.getElementById(id);
+const audio = $('audio');
+const I = {
+  eye: '<svg viewBox="0 0 24 24"><path d="M12 5C7 5 3 9.5 2 12c1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24"><path d="M12 5C7 5 3 9.5 2 12c1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/><path d="M3 4.4 4.4 3 21 19.6 19.6 21z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z"/></svg>',
+  minus: '<svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg>',
+  play: '<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5-13-7.5z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg>',
+  note: '<svg viewBox="0 0 24 24"><path d="M9 3v12.3A3.5 3.5 0 1 0 11 18.5V8h7V3H9z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>',
+  home: '<svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3l9-8z"/></svg>',
+  search: '<svg viewBox="0 0 24 24"><path d="M10 4a6 6 0 1 0 3.5 10.9l4.8 4.8 1.4-1.4-4.8-4.8A6 6 0 0 0 10 4zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8z"/></svg>',
+  lib: '<svg viewBox="0 0 24 24"><path d="M3 5h7l2 2h9v12H3V5zm2 2v10h14V9h-8.8l-2-2H5z"/></svg>'
+};
+const C = { purple: ['#534AB7', '#CECBF6'], teal: ['#0F6E56', '#9FE1CB'], coral: ['#993C1D', '#F5C4B3'], pink: ['#993556', '#F4C0D1'], blue: ['#185FA5', '#B5D4F4'], amber: ['#854F0B', '#FAC775'], green: ['#3B6D11', '#C0DD97'], gray: ['#5F5E5A', '#D3D1C7'] };
+
+const QUICK = [
+  { name: 'Liked songs', lib: true, c: 'purple' },
+  { name: 'Daily mix 1', term: 'bollywood hits', c: 'teal' },
+  { name: 'Workout beats', term: 'gym workout', c: 'coral' },
+  { name: 'Chill vibes', term: 'lofi chill', c: 'blue' }
+];
+const MADE = [
+  { name: 'Focus flow', sub: 'Instrumental beats', term: 'instrumental focus', c: 'purple' },
+  { name: 'Top hits 2026', sub: 'Trending now', term: 'top hits 2026', c: 'teal' },
+  { name: 'Bollywood', sub: 'Party starters', term: 'bollywood party', c: 'coral' },
+  { name: 'Acoustic', sub: 'Soft and slow', term: 'acoustic love songs', c: 'pink' },
+  { name: 'Arijit Singh', sub: 'Romantic hits', term: 'arijit singh', c: 'blue' },
+  { name: 'Punjabi beats', sub: 'Diljit and more', term: 'diljit dosanjh', c: 'amber' },
+  { name: 'English pop', sub: 'The Weeknd and more', term: 'the weeknd', c: 'green' },
+  { name: 'Old Hindi hits', sub: 'Kishore and Lata', term: 'kishore kumar', c: 'gray' }
+];
+const ARTISTS = ['Arijit Singh', 'Diljit Dosanjh', 'Shreya Ghoshal', 'Badshah', 'Neha Kakkar', 'Jubin Nautiyal', 'Atif Aslam', 'Sidhu Moose Wala', 'AP Dhillon', 'A R Rahman', 'Kishore Kumar', 'The Weeknd', 'Taylor Swift', 'Ed Sheeran', 'Dua Lipa', 'Drake'].map(n => ({ name: n, term: n.toLowerCase() }));
+const SIDE = [
+  { name: 'Gym mix', term: 'gym workout' },
+  { name: 'Late night coding', term: 'lofi coding' },
+  { name: 'Road trip', term: 'road trip songs' },
+  { name: 'Old Hindi hits', term: 'kishore kumar' }
+];
+
+let tracks = [], cur = null, shuffle = false, repeat = false, nav = 'home', token = 0;
+let acc = {}, user = null, myPls = [], cardMode = 'std', curPl = null, authMode = 'login', pickTrack = null;
+const guestLikes = () => { try { return JSON.parse(localStorage.getItem('tunebox_liked') || '[]'); } catch (e) { return []; } };
+const saveGuest = () => { try { localStorage.setItem('tunebox_liked', JSON.stringify(liked)); } catch (e) {} };
+let liked = guestLikes();
+const LIB_EMPTY = 'No liked songs yet. Tap the heart on any song to save it here.';
+const isLiked = t => liked.some(x => x.trackId === t.trackId);
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const big = u => u.replace('100x100', '400x400');
+const fmt = s => isFinite(s) ? Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0') : '0:00';
+const setFill = (el, p) => el.style.setProperty('--p', p + '%');
+const sq = c => `background:${C[c][0]};color:${C[c][1]}`;
+
+const cache = new Map();
+let jpN = 0;
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    const name = '__tb' + (++jpN) + '_' + Date.now();
+    const s = document.createElement('script');
+    const done = () => { delete window[name]; s.remove(); clearTimeout(timer); };
+    const timer = setTimeout(() => { done(); reject(new Error('timeout')); }, 12000);
+    window[name] = d => { done(); resolve(d); };
+    s.onerror = () => { done(); reject(new Error('network')); };
+    s.src = url + '&callback=' + name;
+    document.head.appendChild(s);
+  });
+}
+const cleanName = n => String(n || '').toLowerCase()
+  .replace(/[(\[][^)\]]*(from|feat|ft\.|with|original|motion picture|film version|remaster)[^)\]]*[)\]]/g, '')
+  .replace(/\s-\s(from|remaster|feat|with).*$/, '')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+function dedupe(list) {
+  const ids = new Set(), keys = new Set(), urls = new Set(), out = [];
+  for (const r of list) {
+    const key = cleanName(r.trackName) + '|' + cleanName(r.artistName);
+    if (ids.has(r.trackId) || keys.has(key) || urls.has(r.previewUrl)) continue;
+    ids.add(r.trackId); keys.add(key); urls.add(r.previewUrl); out.push(r);
+  }
+  return out;
+}
+function getTerm(term, limit = 200) {
+  const key = term + '|' + limit;
+  if (!cache.has(key)) {
+    const url = 'https://itunes.apple.com/search?entity=song&limit=' + limit + '&country=in&term=' + encodeURIComponent(term);
+    const p = jsonp(url).then(d => dedupe(d.results.filter(r => r.previewUrl)));
+    p.catch(() => cache.delete(key));
+    cache.set(key, p);
+  }
+  return cache.get(key);
+}
+
+function renderNav() {
+  const item = (k, ic, n) => `<button data-k="${k}" class="${nav === k ? 'on' : ''}">${ic}${n}</button>`;
+  const mine = user ? '<hr>' + myPls.map(p => `<button class="pl ${nav === 'up' + p.id ? 'on' : ''}" data-k="up${p.id}">${esc(p.name)}</button>`).join('') + '<button class="pl" data-k="newpl">+ New playlist</button>' : '';
+  $('nav').innerHTML = item('home', I.home, 'Home') + item('search', I.search, 'Search') + item('lib', I.lib, 'Your library') + '<hr>' +
+    SIDE.map((s, i) => `<button class="pl ${nav === 'pl' + i ? 'on' : ''}" data-k="pl${i}">${s.name}</button>`).join('') + mine;
+}
+
+function songCards(list, start = 0) {
+  return list.map((t, i) => `
+    <div class="song" data-i="${start + i}" data-id="${t.trackId}">
+      <button class="open" aria-label="Play ${esc(t.trackName)} by ${esc(t.artistName)}">
+        <div class="art"><img loading="lazy" src="${esc(big(t.artworkUrl100))}" alt=""><span class="pb">${I.play}</span></div>
+        <div class="t">${esc(t.trackName)}</div><div class="a">${esc(t.artistName)}</div>
+      </button>
+      <button class="heart" aria-label="Like song" aria-pressed="${isLiked(t)}">${I.heart}</button>
+      <button class="add" aria-label="${cardMode === 'pl' ? 'Remove from playlist' : 'Add to playlist'}">${cardMode === 'pl' ? I.minus : I.plus}</button>
+    </div>`).join('');
+}
+
+const PAGE = 30;
+let all = [], shown = 0;
+function updateMore() {
+  const w = $('morewrap'); if (!w) return;
+  const left = all.length - shown;
+  w.innerHTML = left > 0 ? `<button class="more" id="more">Load more (${left} left)</button>` : '';
+}
+function showSongs(list, emptyMsg) {
+  all = list; shown = Math.min(PAGE, list.length); tracks = all.slice(0, shown);
+  $('grid').innerHTML = list.length ? songCards(tracks) : `<p class="msg">${emptyMsg}</p>`;
+  updateMore(); mark();
+}
+function loadMore() {
+  const start = shown;
+  shown = Math.min(shown + PAGE, all.length); tracks = all.slice(0, shown);
+  $('grid').insertAdjacentHTML('beforeend', songCards(all.slice(start, shown), start));
+  updateMore(); mark();
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+}
+
+const readCov = () => { try { return JSON.parse(localStorage.getItem('tb_cov') || '{}'); } catch (e) { return {}; } };
+function coverInto(el, term) {
+  const put = u => { if (u && el.isConnected) el.innerHTML = `<img src="${esc(u)}" alt="">`; };
+  const hit = readCov()[term];
+  if (hit) return put(hit);
+  getTerm(term, 5).then(l => {
+    if (!l[0]) return;
+    const u = big(l[0].artworkUrl100); put(u);
+    try { const c = readCov(); c[term] = u; localStorage.setItem('tb_cov', JSON.stringify(c)); } catch (e) {}
+  }).catch(() => {});
+}
+
+function home() {
+  cardMode = 'std'; nav = 'home'; renderNav(); const my = ++token;
+  $('view').innerHTML = `<h1>${greeting()}</h1>
+    <div class="quick">${QUICK.map((q, i) => `<button class="qt" data-q="${i}"><span class="sq" style="${sq(q.c)}">${I.note}</span>${q.name}</button>`).join('')}</div>
+    <h2>Popular artists</h2>
+    <div class="artists" id="artists">${ARTISTS.map((a, i) => `<button class="ar" data-a="${i}" aria-label="${esc(a.name)}"><div class="face" style="${sq(Object.keys(C)[i % 8])}">${esc(a.name[0])}</div><div class="t">${esc(a.name)}</div><div class="a">Artist</div></button>`).join('')}</div>
+    <h2>Made for you</h2>
+    <div class="pls">${MADE.map((m, i) => `<button class="pc" data-m="${i}"><div class="cv" style="${sq(m.c)}">${I.note}</div><div class="t">${m.name}</div><div class="a">${m.sub}</div></button>`).join('')}</div>
+    <h2>Popular right now</h2>
+    <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="morewrap" id="morewrap"></div>`;
+  document.querySelectorAll('.qt').forEach(b => { const q = QUICK[+b.dataset.q]; if (q.term) coverInto(b.querySelector('.sq'), q.term); });
+  document.querySelectorAll('.pc').forEach(b => coverInto(b.querySelector('.cv'), MADE[+b.dataset.m].term));
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { io.unobserve(en.target); coverInto(en.target.querySelector('.face'), ARTISTS[+en.target.dataset.a].term); } }), { root: $('artists'), rootMargin: '0px 300px' });
+  document.querySelectorAll('.ar').forEach(b => io.observe(b));
+  getTerm('trending hindi songs').then(l => { if (my === token) showSongs(l, 'No songs found.'); })
+    .catch(() => { if (my === token) $('grid').innerHTML = '<p class="msg">Couldn\'t load songs. Check your internet connection and try again.</p>'; });
+}
+
+function playlist(term, title, key) {
+  cardMode = 'std'; nav = key; renderNav(); const my = ++token;
+  $('view').innerHTML = `<div class="head"><h1>${esc(title)}</h1><button class="pall" id="pall">${I.play}Play all</button></div>
+    <div class="grid" id="grid">${Array(8).fill('<div class="skel"></div>').join('')}</div><div class="morewrap" id="morewrap"></div>`;
+  $('pall').addEventListener('click', () => { if (tracks.length) playTrack(shuffle ? tracks[Math.floor(Math.random() * tracks.length)] : tracks[0]); });
+  getTerm(term).then(l => { if (my === token) showSongs(l, 'No songs found. Try another artist or song name.'); })
+    .catch(() => { if (my === token) $('grid').innerHTML = '<p class="msg">Couldn\'t load songs. Check your internet connection and try again.</p>'; });
+}
+
+function library() {
+  cardMode = 'std'; nav = 'lib'; renderNav(); ++token;
+  $('view').innerHTML = `<div class="head"><h1>Liked songs</h1><button class="pall" id="pall">${I.play}Play all</button></div><div class="grid" id="grid"></div><div class="morewrap" id="morewrap"></div>`;
+  $('pall').addEventListener('click', () => { if (tracks.length) playTrack(tracks[0]); });
+  showSongs([...liked], LIB_EMPTY);
+}
+
+function searchView() {
+  cardMode = 'std'; nav = 'search'; renderNav(); ++token;
+  $('view').innerHTML = '<h1>Search</h1><div class="grid" id="grid"><p class="msg">Type a song or artist name above.</p></div><div class="morewrap" id="morewrap"></div>';
+  tracks = [];
+  $('q').focus();
+}
+
+$('form').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = $('q').value.trim(); if (!q) return;
+  go('/search/' + encodeURIComponent(q));
+});
+$('logo').addEventListener('click', () => go('/'));   // tap the TuneBox logo = go home from any page
+$('nav').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const k = b.dataset.k;
+  if (k === 'home') go('/');
+  else if (k === 'search') go('/search');
+  else if (k === 'lib') go('/liked');
+  else if (k === 'newpl') createPlaylist();
+  else if (k.startsWith('up')) go('/playlist/' + k.slice(2));
+  else go('/side/' + k.slice(2));
+});
+$('view').addEventListener('click', e => {
+  if (e.target.closest('#more')) return loadMore();
+  const qt = e.target.closest('.qt'), pc = e.target.closest('.pc'), ar = e.target.closest('.ar');
+  if (ar) return go('/artist/' + ar.dataset.a);
+  if (qt) return go(QUICK[+qt.dataset.q].lib ? '/liked' : '/quick/' + qt.dataset.q);
+  if (pc) return go('/made/' + pc.dataset.m);
+  const card = e.target.closest('.song'); if (!card) return;
+  const t = tracks[+card.dataset.i];
+  if (e.target.closest('.add')) return cardMode === 'pl' ? removeFromPl(t) : openPick(t);
+  if (e.target.closest('.heart')) return toggleLike(t, e.target.closest('.heart'));
+  if (cur && cur.trackId === t.trackId) togglePlay(); else playTrack(t);
+});
+
+function mark() {
+  document.querySelectorAll('.song').forEach(c => c.classList.toggle('on', !!cur && +c.dataset.id === cur.trackId));
+}
+
+function playTrack(t) {
+  cur = t;
+  audio.src = t.previewUrl;
+  audio.play().catch(() => {});
+  $('pt').textContent = t.trackName;
+  $('pa').textContent = t.artistName;
+  $('cover').src = big(t.artworkUrl100);
+  document.title = t.trackName + ' - TuneBox';
+  mark();
+}
+
+function step(dir) {
+  if (!tracks.length) return;
+  const i = cur ? tracks.findIndex(t => t.trackId === cur.trackId) : -1;
+  if (shuffle && tracks.length > 1) {
+    let n; do { n = Math.floor(Math.random() * tracks.length); } while (n === i);
+    return playTrack(tracks[n]);
+  }
+  playTrack(tracks[((i < 0 ? 0 : i + dir) + tracks.length) % tracks.length]);
+}
+
+function togglePlay() {
+  if (!cur) { if (tracks.length) playTrack(tracks[0]); return; }
+  audio.paused ? audio.play().catch(() => {}) : audio.pause();
+}
+$('play').innerHTML = I.play;
+$('play').addEventListener('click', togglePlay);
+$('next').addEventListener('click', () => step(1));
+$('prev').addEventListener('click', () => { if (audio.currentTime > 3) audio.currentTime = 0; else step(-1); });
+$('shuf').addEventListener('click', () => { shuffle = !shuffle; $('shuf').classList.toggle('on', shuffle); $('shuf').setAttribute('aria-pressed', shuffle); });
+$('rep').addEventListener('click', () => { repeat = !repeat; $('rep').classList.toggle('on', repeat); $('rep').setAttribute('aria-pressed', repeat); });
+
+audio.addEventListener('play', () => { $('play').innerHTML = I.pause; $('play').setAttribute('aria-label', 'Pause'); });
+audio.addEventListener('pause', () => { $('play').innerHTML = I.play; $('play').setAttribute('aria-label', 'Play'); });
+audio.addEventListener('ended', () => { if (repeat) { audio.currentTime = 0; audio.play(); } else step(1); });
+audio.addEventListener('timeupdate', () => {
+  const d = audio.duration || 30, p = audio.currentTime / d * 100;
+  $('seek').value = p; setFill($('seek'), p);
+  $('cur').textContent = fmt(audio.currentTime);
+  $('dur').textContent = fmt(d);
+});
+$('seek').addEventListener('input', e => { audio.currentTime = e.target.value / 100 * (audio.duration || 30); setFill(e.target, e.target.value); });
+$('vol').addEventListener('input', e => { audio.volume = e.target.value; setFill(e.target, e.target.value * 100); });
+audio.volume = 0.8; setFill($('vol'), 80);
+
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'BUTTON'].includes(e.target.tagName)) return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  if (e.code === 'ArrowRight') step(1);
+  if (e.code === 'ArrowLeft') step(-1);
+});
+
+/* ---------- account, likes and playlists (talks to the FastAPI backend) ---------- */
+let pending = 0, busyT = 0;
+function busy(d) {   // thin bar at the top if any request takes longer than 250 ms
+  pending += d;
+  if (pending > 0) { if (!busyT) busyT = setTimeout(() => $('busy').classList.add('on'), 250); }
+  else { clearTimeout(busyT); busyT = 0; $('busy').classList.remove('on'); }
+}
+async function spinBtn(btn, text, fn) {   // button shows a spinner + text while fn() runs
+  const old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span>' + text;
+  try { return await fn(); }
+  finally { if (btn.isConnected) { btn.disabled = false; btn.innerHTML = old; } }   // page may have been re-drawn meanwhile
+}
+async function api(...a) { busy(1); try { return await apiRaw(...a); } finally { busy(-1); } }
+async function apiRaw(path, method = 'GET', body) {
+  const r = await fetch('/api/' + path, { method, headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined, credentials: 'same-origin' });
+  let data = null; try { data = await r.json(); } catch (e) {}
+  if (!r.ok) throw Object.assign(new Error(data && typeof data.detail === 'string' ? data.detail : 'Something went wrong. Please check your input and try again.'), { status: r.status });
+  return data;
+}
+const slim = t => ({ trackId: t.trackId, trackName: t.trackName, artistName: t.artistName, collectionName: t.collectionName || null, artworkUrl100: t.artworkUrl100, previewUrl: t.previewUrl });
+function toast(m) { const e = $('toast'); e.textContent = m; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('show'), 2400); }
+
+const avatarHtml = () => acc.avatar ? `<img src="${esc(acc.avatar)}" alt="">` : esc(((acc.display_name || acc.username || '?')[0] || '?').toUpperCase());
+function renderAcct() {
+  if (!user) { $('me').innerHTML = '<button class="lgbtn" id="openAuth">Log in</button>'; return; }
+  $('me').innerHTML = `<button class="avatar" id="avBtn" aria-haspopup="menu" aria-expanded="false" aria-label="Account menu">${avatarHtml()}</button>
+    <div class="menu" id="menu" role="menu" hidden>
+      <div class="who"><b>${esc(acc.display_name || acc.username)}</b><span>@${esc(acc.username)}</span></div>
+      <button role="menuitem" data-a="profile">Profile</button>
+      <button role="menuitem" data-a="lib">Liked songs</button>
+      <button role="menuitem" data-a="logout">Log out</button>
+    </div>`;
+}
+const loadLikes = async () => { try { liked = await api('likes'); } catch (e) { liked = []; } };
+const loadPls = async () => { if (!user) { myPls = []; return; } try { myPls = await api('playlists'); } catch (e) { myPls = []; } };
+function refreshView() {
+  if (nav === 'lib') return library();
+  document.querySelectorAll('.song').forEach(c => { const t = tracks[+c.dataset.i]; if (t) c.querySelector('.heart').setAttribute('aria-pressed', isLiked(t)); });
+}
+
+function setMode(m) {
+  authMode = m;
+  document.querySelectorAll('.seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('authT').textContent = m === 'login' ? 'Log in' : 'Create account';
+  $('asub').textContent = m === 'login' ? 'Log in' : 'Sign up';
+  $('ap').autocomplete = m === 'login' ? 'current-password' : 'new-password';
+  $('authHint').textContent = m === 'login'
+    ? 'Guests can listen and like songs without an account. Log in to keep them on every device.'
+    : "Pick any random username and password. Don't use your real email or an old password. After signing up you get a recovery code: save it, it is the only way back in if you forget your password.";
+  $('amsg').textContent = '';
+  $('forgot').hidden = m !== 'login';   // "Forgot password?" only makes sense on the login tab
+}
+function openAuth(msg) { $('ap').type = 'password'; const ey = $('auth').querySelector('.eye'); ey.innerHTML = I.eye; ey.setAttribute('aria-label', 'Show password'); ey.setAttribute('aria-pressed', 'false'); setMode('login'); $('amsg').textContent = msg || ''; $('auth').showModal(); $('au').focus(); }
+async function afterLogin() {
+  acc = await api('me'); user = acc.username;
+  const g = guestLikes();
+  if (g.length) { try { await api('likes/merge', 'POST', { tracks: g.slice(0, 500).map(slim) }); localStorage.removeItem('tunebox_liked'); } catch (e) {} }
+  await Promise.all([loadLikes(), loadPls()]);
+  renderAcct(); renderNav(); refreshView();
+}
+async function logout() {
+  user = null; acc = {}; myPls = []; liked = guestLikes(); renderAcct();   // update the screen first, don't wait for the server
+  if (nav.startsWith('up') || nav === 'profile' || nav === 'security') go('/'); else { renderNav(); refreshView(); }
+  toast('Logged out');
+  try { await api('logout', 'POST'); } catch (e) { toast('Could not log out on the server. Check your internet and try again.'); }
+}
+
+async function toggleLike(t, btn) {
+  const on = isLiked(t), prev = liked;
+  liked = on ? liked.filter(x => x.trackId !== t.trackId) : [slim(t), ...liked];
+  btn.setAttribute('aria-pressed', !on);
+  if (nav === 'lib') showSongs([...liked], LIB_EMPTY);
+  if (!user) return saveGuest();
+  try { await api('likes/' + t.trackId, on ? 'DELETE' : 'PUT', on ? undefined : slim(t)); }
+  catch (e) { liked = prev; btn.setAttribute('aria-pressed', on); toast('Could not save: ' + e.message); if (nav === 'lib') showSongs([...liked], LIB_EMPTY); }
+}
+
+function resizePhoto(file) {
+  return new Promise((res, rej) => {
+    if (!file.type.startsWith('image/')) return rej(new Error('Please choose an image file.'));
+    if (file.size > 10 * 1024 * 1024) return rej(new Error('That image is too large. Choose one under 10 MB.'));
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.width, img.height), c = document.createElement('canvas'), x = c.getContext('2d');
+      c.width = c.height = 256; x.fillStyle = '#fff'; x.fillRect(0, 0, 256, 256);
+      x.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 256, 256);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("Couldn't read that image. Try a JPG or PNG.")); };
+    img.src = url;
+  });
+}
+async function setPhoto(file) {
+  const work = async () => { const data = await resizePhoto(file); await api('profile/avatar', 'PUT', { image: data }); return data; };
+  try { const b = $('pChange'); const data = await (b ? spinBtn(b, 'Uploading…', work) : work()); acc.avatar = data; renderAcct(); profileView(); toast('Photo updated'); }
+  catch (e) { const m = $('pMsg'); if (m) m.textContent = e.message; else toast(e.message); }
+}
+function profileView() {
+  if (!user) return openAuth('Log in to see your profile.');
+  cardMode = 'std'; nav = 'profile'; renderNav(); ++token;
+  $('view').innerHTML = `<div class="prof"><button class="avatar big" id="pPhoto" aria-label="Change photo">${avatarHtml()}</button>
+    <div><div class="kicker">Profile</div><h1>${esc(acc.display_name || acc.username)}</h1><div class="a">@${esc(acc.username)} &middot; ${liked.length} liked songs &middot; ${myPls.length} playlists</div></div></div>
+    <div class="row2"><button class="pall" id="pChange">Change photo</button><button class="more" id="pRemove">Remove photo</button></div>
+    <input type="file" id="pFile" accept="image/*" hidden>
+    <p class="err" id="pMsg" role="alert"></p>
+    <div class="psec"><h2>Display name</h2><form id="nameForm"><input id="dnIn" maxlength="40" value="${esc(acc.display_name || '')}" placeholder="${esc(acc.username)}" aria-label="Display name"><div class="row2"><button class="pall" type="submit">Save name</button></div></form></div>
+    <div class="psec"><h2>Password and security</h2><p class="msg" style="margin:0 0 10px">Change your password and manage your account safety.</p><div class="row2"><button class="more" id="pSec">Open Password and security</button></div></div>
+    <div class="psec"><h2>Your playlists</h2>${myPls.length ? myPls.map(p => `<button class="pl-link" data-pl="${p.id}">${esc(p.name)} <span class="a">(${p.count})</span></button>`).join('') : '<p class="msg" style="margin:0">No playlists yet. Use the + button on any song to make one.</p>'}</div>
+    <div class="row2" style="margin-top:16px"><button class="more" id="pOut">Log out</button></div>`;
+  const msg = t => { $('pMsg').textContent = t; };
+  $('pPhoto').onclick = $('pChange').onclick = () => $('pFile').click();
+  $('pFile').onchange = e => { const f = e.target.files[0]; if (f) setPhoto(f); };
+  $('pRemove').onclick = async () => { try { await spinBtn($('pRemove'), 'Removing…', () => api('profile/avatar', 'DELETE')); acc.avatar = null; renderAcct(); profileView(); toast('Photo removed'); } catch (e) { msg(e.message); } };
+  $('nameForm').onsubmit = async e => {
+    e.preventDefault();
+    try { const r = await spinBtn(e.target.querySelector('button[type=submit]'), 'Saving…', () => api('profile', 'PUT', { display_name: $('dnIn').value.trim() })); acc.display_name = r.display_name; renderAcct(); profileView(); toast('Name saved'); } catch (err) { msg(err.message); }
+  };
+  $('pSec').onclick = () => go('/security');
+  $('pOut').onclick = logout;
+  document.querySelectorAll('.pl-link').forEach(b => { b.onclick = () => go('/playlist/' + b.dataset.pl); });
+}
+
+function pwField(id, placeholder, auto) {
+  return `<span class="pwf"><input id="${id}" type="password" placeholder="${placeholder}" autocomplete="${auto}" maxlength="64" required><button type="button" class="eye" aria-label="Show password" aria-pressed="false">${I.eye}</button></span>`;
+}
+function securityView() {
+  if (!user) return openAuth('Log in to manage your password.');
+  cardMode = 'std'; nav = 'security'; renderNav(); ++token;
+  $('view').innerHTML = `<div class="prof"><div><div class="kicker">Account</div><h1>Password and security</h1><div class="a">@${esc(acc.username)}</div></div></div>
+    <div class="row2" style="margin-top:12px"><button class="more" id="sBack">&larr; Back to profile</button></div>
+    <div class="psec"><h2>Change password</h2>
+      <p class="msg" style="margin:0 0 10px">Your saved password can't be shown to you. It is stored scrambled (hashed) for safety. Use the eye icon to check what you are typing.</p>
+      <form id="pwForm">${pwField('pw1', 'Current password', 'current-password')}${pwField('pw2', 'New password (6+ characters)', 'new-password')}${pwField('pw3', 'Confirm new password', 'new-password')}
+        <p class="err" id="sMsg" role="alert"></p>
+        <div class="row2"><button class="pall" type="submit">Update password</button></div></form></div>
+    <div class="psec"><h2>Recovery code</h2>
+      <p class="msg" style="margin:0 0 10px">${acc.has_recovery ? "You have a recovery code. For safety we can't show it again. Lost it? Make a new one: the old code stops working." : "You don't have a recovery code yet. Without one, a forgotten password can't be reset. Make one now and keep it safe."}</p>
+      <form id="recForm">${pwField('rpw', 'Your password', 'current-password')}
+        <p class="err" id="rMsg" role="alert"></p>
+        <div class="row2"><button class="pall" type="submit">${acc.has_recovery ? 'Make a new recovery code' : 'Make my recovery code'}</button></div></form></div>
+    <div class="psec"><h2>Log out of all devices</h2>
+      <p class="msg" style="margin:0 0 10px">Lost a phone or left your account open somewhere? This logs you out everywhere else. You stay logged in on this device.</p>
+      <p class="err" id="lMsg" role="alert"></p>
+      <div class="row2"><button class="more" id="logAll">Log out of all other devices</button></div></div>
+    <div class="psec dz"><h2>Delete account</h2>
+      <p class="msg" style="margin:0 0 10px">This permanently deletes your account, liked songs and playlists. It can't be undone. Enter your password to confirm.</p>
+      <form id="delForm">${pwField('dpw', 'Your password', 'current-password')}
+        <p class="err" id="dMsg" role="alert"></p>
+        <div class="row2"><button class="danger" type="submit">Delete my account</button></div></form></div>`;
+  $('sBack').onclick = () => go('/profile');
+  $('pwForm').onsubmit = async e => {
+    e.preventDefault();
+    const msg = t => { $('sMsg').textContent = t; };
+    if ($('pw2').value !== $('pw3').value) return msg('The new passwords do not match.');
+    try { await spinBtn(e.target.querySelector('button[type=submit]'), 'Updating password…', () => api('password', 'POST', { current: $('pw1').value, new_password: $('pw2').value })); securityView(); toast('Password updated. Other devices were logged out.'); }
+    catch (err) { msg(err.message); }
+  };
+  $('recForm').onsubmit = async e => {
+    e.preventDefault();
+    if (acc.has_recovery && !confirm('Make a new recovery code? Your old code will stop working.')) return;
+    try {
+      const r = await spinBtn(e.target.querySelector('button[type=submit]'), 'Making code…', () => api('recovery', 'POST', { password: $('rpw').value }));
+      acc.has_recovery = true;
+      await showRecovery(r.recovery_code);
+      securityView();
+    } catch (err) { $('rMsg').textContent = err.message; }
+  };
+  $('logAll').onclick = async () => {
+    if (!confirm('Log out of all other devices? You will stay logged in here.')) return;
+    try { await spinBtn($('logAll'), 'Logging out other devices…', () => api('logout-all', 'POST')); $('lMsg').textContent = ''; toast('Logged out of all other devices'); }
+    catch (err) { $('lMsg').textContent = err.message; }
+  };
+  $('delForm').onsubmit = async e => {
+    e.preventDefault();
+    const msg = t => { $('dMsg').textContent = t; };
+    if (!confirm('Delete your account forever? Your liked songs and playlists will be lost.')) return;
+    try {
+      await spinBtn(e.target.querySelector('button[type=submit]'), 'Deleting account…', () => api('account/delete', 'POST', { password: $('dpw').value }));
+      user = null; acc = {}; myPls = []; liked = guestLikes(); renderAcct(); go('/'); toast('Account deleted');
+    } catch (err) { msg(err.message); }
+  };
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.eye'); if (!b) return;
+  const inp = b.parentElement.querySelector('input'), show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  b.innerHTML = show ? I.eyeOff : I.eye;
+  b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  b.setAttribute('aria-pressed', show);
+});
+
+async function createPlaylist(name) {
+  name = (name ?? prompt('Name your playlist') ?? '').trim();
+  if (!name) return null;
+  try { const p = await api('playlists', 'POST', { name }); await loadPls(); renderNav(); return p; }
+  catch (e) { toast(e.message); return null; }
+}
+async function userPlaylist(id) {
+  cardMode = 'pl'; curPl = id; nav = 'up' + id; renderNav(); const my = ++token;
+  $('view').innerHTML = `<div class="head"><h1 id="plh">Playlist</h1><button class="pall" id="pall">${I.play}Play all</button><button class="more" id="pdel">Delete playlist</button></div>
+    <div class="grid" id="grid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><div class="morewrap" id="morewrap"></div>`;
+  $('pall').addEventListener('click', () => { if (tracks.length) playTrack(tracks[0]); });
+  $('pdel').addEventListener('click', async () => {
+    if (!confirm('Delete this playlist?')) return;
+    try { await api('playlists/' + id, 'DELETE'); await loadPls(); go('/'); toast('Playlist deleted'); } catch (e) { toast(e.message); }
+  });
+  try {
+    const p = await api('playlists/' + id);
+    if (my !== token) return;
+    $('plh').textContent = p.name;
+    showSongs(p.tracks, 'This playlist is empty. Use the + button on any song to add it here.');
+  } catch (e) { if (my === token) $('grid').innerHTML = `<p class="msg">${esc(e.message)}</p>`; }
+}
+async function removeFromPl(t) {
+  try { await api(`playlists/${curPl}/songs/${t.trackId}`, 'DELETE'); await loadPls(); userPlaylist(curPl); } catch (e) { toast(e.message); }
+}
+function openPick(t) {
+  if (!user) return openAuth('Log in to create playlists and save songs.');
+  pickTrack = t; renderPick(); $('pick').showModal();
+}
+function renderPick() {
+  $('pickList').innerHTML = myPls.length
+    ? myPls.map(p => `<button type="button" data-id="${p.id}">${esc(p.name)} <span class="a">(${p.count})</span></button>`).join('')
+    : '<p class="msg">No playlists yet. Create your first one below.</p>';
+}
+async function addTo(id, t) {
+  try { await api(`playlists/${id}/songs/${t.trackId}`, 'PUT', slim(t)); $('pick').close(); await loadPls(); renderNav(); toast('Added to playlist'); }
+  catch (e) { toast(e.message); }
+}
+
+$('me').addEventListener('click', e => {
+  if (e.target.closest('#openAuth')) return openAuth();
+  if (e.target.closest('#avBtn')) { const m = $('menu'); m.hidden = !m.hidden; $('avBtn').setAttribute('aria-expanded', !m.hidden); return; }
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  $('menu').hidden = true;
+  if (b.dataset.a === 'profile') go('/profile'); else if (b.dataset.a === 'lib') go('/liked'); else logout();
+});
+document.addEventListener('click', e => { const m = $('menu'); if (m && !m.hidden && !e.target.closest('#me')) m.hidden = true; });
+document.addEventListener('keydown', e => { const m = $('menu'); if (e.key === 'Escape' && m && !m.hidden) { m.hidden = true; $('avBtn').focus(); } });
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.m)));
+$('authX').addEventListener('click', () => $('auth').close());
+$('pickX').addEventListener('click', () => $('pick').close());
+$('authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const u = $('au').value.trim(), p = $('ap').value;
+  if (authMode === 'signup' && p.length < 6) { $('amsg').textContent = 'Password must be at least 6 characters.'; return; }
+  const mode = authMode, label = $('asub').textContent, setBtn = t => { $('asub').innerHTML = '<span class="spin"></span>' + t; };
+  $('asub').disabled = $('au').disabled = $('ap').disabled = true; $('amsg').textContent = '';
+  setBtn(mode === 'signup' ? 'Creating account…' : 'Logging in…');
+  try {
+    const r = await api(mode, 'POST', { username: u, password: p });
+    await afterLogin(r.username); $('auth').close(); $('ap').value = '';
+    if (r.recovery_code) await showRecovery(r.recovery_code);   // new accounts must see their code before going on
+    toast(mode === 'signup' ? 'Welcome to TuneBox!' : 'Welcome back, ' + (acc.display_name || acc.username));
+  } catch (err) { $('amsg').textContent = err.message; }
+  $('asub').disabled = $('au').disabled = $('ap').disabled = false; $('asub').textContent = label;
+});
+$('pickList').addEventListener('click', e => { const b = e.target.closest('button'); if (b && pickTrack) addTo(+b.dataset.id, pickTrack); });
+$('newpl').addEventListener('submit', async e => {
+  e.preventDefault();
+  const p = await createPlaylist($('npn').value);
+  if (p && pickTrack) { $('npn').value = ''; addTo(p.id, pickTrack); }
+});
+
+/* ---------- recovery code box: shown once, cannot be skipped ---------- */
+let recOpen = false;
+function showRecovery(code) {
+  return new Promise(resolve => {
+    recOpen = true;
+    $('recCode').textContent = code; $('recNote').textContent = '';
+    $('recOk').checked = false; $('recGo').disabled = true;
+    $('recGo').onclick = () => { recOpen = false; $('rec').close(); $('recCode').textContent = ''; resolve(); };
+    $('rec').showModal();
+  });
+}
+$('rec').addEventListener('cancel', e => e.preventDefault());                       // Esc does not close it
+$('rec').addEventListener('close', () => { if (recOpen) $('rec').showModal(); });   // some browsers close on a 2nd Esc: open again
+$('recOk').addEventListener('change', () => { $('recGo').disabled = !$('recOk').checked; });
+$('recCopy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('recCode').textContent); $('recNote').textContent = 'Copied. Paste it somewhere safe.'; }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($('recCode')); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    $('recNote').textContent = 'Code selected. Press Ctrl+C to copy it.';
+  }
+});
+$('recDl').addEventListener('click', () => {
+  const text = 'TuneBox recovery code\r\nUsername: ' + acc.username + '\r\nCode: ' + $('recCode').textContent + '\r\n\r\nKeep this file safe. Anyone who has this code can reset your password.\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  a.download = 'TuneBox-recovery-code.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  $('recNote').textContent = 'Downloaded. Check your Downloads folder.';
+});
+
+/* ---------- forgot password: username + recovery code + new password ---------- */
+function openReset() {
+  $('auth').close();
+  $('rpUser').value = $('au').value.trim(); $('rpCode').value = ''; $('rpMsg').textContent = '';
+  $('rp1w').innerHTML = pwField('rp1', '', 'new-password');   // drawn fresh each time, so the eye icons start hidden
+  $('rp2w').innerHTML = pwField('rp2', '', 'new-password');
+  $('reset').showModal();
+  ($('rpUser').value ? $('rpCode') : $('rpUser')).focus();
+}
+$('forgot').addEventListener('click', openReset);
+$('resetX').addEventListener('click', () => { $('reset').close(); openAuth(); });
+$('resetForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = t => { $('rpMsg').textContent = t; };
+  const u = $('rpUser').value.trim(), p1 = $('rp1').value, p2 = $('rp2').value;
+  let code = $('rpCode').value.trim();
+  const line = code.match(/code:\s*(.+)/i); if (line) code = line[1].trim();   // pasted the whole .txt file? take just the code line
+  if (!u || !code) return msg('Enter your username and recovery code.');
+  if (p1.length < 6) return msg('New password must be at least 6 characters.');
+  if (p1 !== p2) return msg('The new passwords do not match.');
+  msg('');
+  try {
+    const r = await spinBtn($('resetGo'), 'Resetting…', () => api('recovery/reset', 'POST', { username: u, code, new_password: p1 }));
+    await afterLogin(r.username); $('ap').value = ''; $('reset').close();
+    await showRecovery(r.recovery_code);   // the old code is used up, so a new one must be saved
+    toast('Password reset. You are logged in.');
+  } catch (err) { msg(err.message); }
+});
+
+/* ---------- page links (hash routing): back button and phone back gesture work ---------- */
+function go(path) {
+  const h = '#' + path;
+  if (location.hash === h) route(); else location.hash = h;   // hash change triggers route() by itself
+}
+function route() {
+  const parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+  const page = parts[0] || 'home', arg = parts.slice(1).join('/');
+  const i = Number.isInteger(+arg) && arg !== '' ? +arg : -1;
+  window.scrollTo(0, 0);
+  if (page !== 'search') $('q').value = '';
+  if (page === 'search') {
+    if (arg) { $('q').value = arg; return playlist(arg, 'Results for "' + arg + '"', 'search'); }
+    return searchView();
+  }
+  if (page === 'liked') return library();
+  if (page === 'profile' || page === 'security') {
+    if (user) return page === 'profile' ? profileView() : securityView();
+    history.replaceState(null, '', '#/'); home(); return openAuth(page === 'profile' ? 'Log in to see your profile.' : 'Log in to manage your password.');
+  }
+  if (page === 'playlist' && i > 0 && user) return userPlaylist(i);
+  const list = { side: SIDE, quick: QUICK, made: MADE, artist: ARTISTS }[page];
+  const item = list && list[i];
+  if (item && item.lib) return library();
+  if (item) return playlist(item.term, item.name, { side: 'pl' + i, quick: 'q' + i, made: 'm' + i, artist: 'artist' }[page]);
+  if (page !== 'home') history.replaceState(null, '', '#/');   // unknown link: quietly go home
+  home();
+}
+
+$('me').innerHTML = '<span class="spin" role="status" aria-label="Loading"></span>'; setMode('login');   // shown until we know if you are logged in
+$('view').innerHTML = '<div class="loading"><span class="spin big"></span>Loading TuneBox…</div>';
+(async () => {
+  try { acc = await api('me'); user = acc.username; await Promise.all([loadLikes(), loadPls()]); } catch (e) {}
+  renderAcct(); route();
+  window.addEventListener('hashchange', route);
+})();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+let deferred = null;
+const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+window.addEventListener('appinstalled', () => { deferred = null; toast('TuneBox installed'); });
+$('a2hsX').addEventListener('click', () => $('a2hs').close());
+document.addEventListener('click', async e => {
+  const dm = $('dotMenu');
+  if (e.target.closest('#pDots')) { dm.hidden = !dm.hidden; $('pDots').setAttribute('aria-expanded', !dm.hidden); return; }
+  if (dm.hidden) return;
+  dm.hidden = true; $('pDots').setAttribute('aria-expanded', 'false');
+  if (e.target.closest('#miA2hs')) return $('a2hs').showModal();
+  if (e.target.closest('#miInstall')) {
+    if (standalone()) toast('App already installed');
+    else if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; }
+    else $('a2hs').showModal();
+  }
+});
+document.addEventListener('keydown', e => { const dm = $('dotMenu'); if (e.key === 'Escape' && !dm.hidden) { dm.hidden = true; $('pDots').setAttribute('aria-expanded', 'false'); $('pDots').focus(); } });
+</script>
+</body>
+</html>
